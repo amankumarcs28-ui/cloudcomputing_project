@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mark Attendance - CloudAttend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="toast-container"></div>
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">CloudAttend</span>
+          <span class="brand-subtitle">Teacher Portal</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Overview</div>
+        <a href="dashboard.html" class="nav-item">
+          <i class="fa-solid fa-chart-line"></i> Dashboard
+        </a>
+        <a href="attendance.html" class="nav-item active">
+          <i class="fa-solid fa-calendar-check"></i> Mark Attendance
+        </a>
+
+        <div class="nav-section-title">Academic Records</div>
+        <a href="students.html" class="nav-item">
+          <i class="fa-solid fa-user-graduate"></i> Students
+        </a>
+        <a href="classes.html" class="nav-item">
+          <i class="fa-solid fa-chalkboard"></i> Classes
+        </a>
+        <a href="subjects.html" class="nav-item">
+          <i class="fa-solid fa-book-open"></i> Subjects
+        </a>
+
+        <div class="nav-section-title">Analytics &amp; Tools</div>
+        <a href="reports.html" class="nav-item">
+          <i class="fa-solid fa-file-waveform"></i> Reports &amp; Export
+        </a>
+        <a href="settings.html" class="nav-item">
+          <i class="fa-solid fa-gear"></i> Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-snippet">
+          <div class="user-avatar" id="sidebar-user-avatar">T</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-user-name">Loading...</div>
+            <div class="user-role" id="sidebar-user-school">Educator</div>
+          </div>
+          <button id="btn-sidebar-logout" class="btn btn-secondary btn-icon" title="Logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="page-heading">
+            <h1 class="page-title">Daily Attendance Tracker</h1>
+            <span class="page-subtitle">Select class, subject, and date to mark or edit student attendance</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="topbar-date">
+            <i class="fa-regular fa-clock"></i>
+            <span id="session-status-badge">Ready</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="content-area">
+        <!-- Selection Control Card -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-body" style="padding: 20px;">
+            <form id="attendance-filter-form" style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;">
+              <!-- Class Select -->
+              <div style="flex: 1; min-width: 200px;">
+                <label for="att-class" class="form-label">Select Class <span class="required">*</span></label>
+                <select id="att-class" class="form-select" required>
+                  <option value="">Choose Class...</option>
+                </select>
+              </div>
+
+              <!-- Subject Select -->
+              <div style="flex: 1; min-width: 200px;">
+                <label for="att-subject" class="form-label">Select Subject <span class="required">*</span></label>
+                <select id="att-subject" class="form-select" required>
+                  <option value="">Choose Subject...</option>
+                </select>
+              </div>
+
+              <!-- Date Picker -->
+              <div style="flex: 1; min-width: 180px;">
+                <label for="att-date" class="form-label">Attendance Date <span class="required">*</span></label>
+                <input type="date" id="att-date" class="form-control" required>
+              </div>
+
+              <!-- Submit / Fetch Button -->
+              <div>
+                <button type="submit" id="btn-load-attendance" class="btn btn-primary" style="height: 42px;">
+                  <i class="fa-solid fa-arrows-rotate"></i> Load Student Roster
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Attendance Work Station (Initially hidden or showing prompt) -->
+        <div id="attendance-roster-section" style="display: none;">
+          <!-- Status Banner (Shows whether this is a new recording or editing existing) -->
+          <div id="attendance-mode-banner" style="display: none; padding: 12px 18px; border-radius: var(--radius-md); margin-bottom: 20px;"></div>
+
+          <!-- Attendance Action Bar & Live Statistics -->
+          <div class="card" style="margin-bottom: 20px;">
+            <div class="card-body" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 24px;">
+              <!-- Quick Batch Buttons -->
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Batch Actions:</span>
+                <button type="button" id="btn-mark-all-present" class="btn btn-success btn-sm">
+                  <i class="fa-solid fa-check-double"></i> Mark All Present
+                </button>
+                <button type="button" id="btn-mark-all-absent" class="btn btn-danger btn-sm">
+                  <i class="fa-solid fa-xmark"></i> Mark All Absent
+                </button>
+              </div>
+
+              <!-- Real-time Count Indicators -->
+              <div style="display: flex; align-items: center; gap: 20px; font-size: 0.9rem; font-weight: 600;">
+                <div>Total: <span id="count-total" class="badge badge-secondary">0</span></div>
+                <div>Present: <span id="count-present" class="badge badge-success">0</span></div>
+                <div>Absent: <span id="count-absent" class="badge badge-danger">0</span></div>
+                <div>Attendance: <span id="count-percentage" class="badge badge-primary">0%</span></div>
+              </div>
+
+              <!-- Save Button -->
+              <div>
+                <button type="button" id="btn-save-attendance" class="btn btn-primary">
+                  <span id="btn-save-attendance-text"><i class="fa-solid fa-cloud-arrow-up"></i> Save Attendance to Cloud</span>
+                  <span id="btn-save-attendance-spinner" class="spinner" style="display: none;"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Student Roster Table -->
+          <div class="card">
+            <div class="table-container">
+              <table class="table table-hover" id="attendance-table">
+                <thead>
+                  <tr>
+                    <th style="width: 100px;">Roll No</th>
+                    <th>Student Name</th>
+                    <th>Email</th>
+                    <th style="width: 220px; text-align: center;">Attendance Status</th>
+                  </tr>
+                </thead>
+                <tbody id="attendance-tbody">
+                  <!-- Loaded dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Initial Placeholder State -->
+        <div id="attendance-initial-placeholder" class="card">
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <i class="fa-solid fa-calendar-days"></i>
+            </div>
+            <h2 class="empty-state-title">Ready to Take Attendance</h2>
+            <p class="empty-state-desc">
+              Select a class, subject, and date from the bar above, then click <strong>"Load Student Roster"</strong> to begin marking attendance.
+            </p>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="./js/attendance.js"></script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Subjects - CloudAttend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="toast-container"></div>
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">CloudAttend</span>
+          <span class="brand-subtitle">Teacher Portal</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Overview</div>
+        <a href="dashboard.html" class="nav-item">
+          <i class="fa-solid fa-chart-line"></i> Dashboard
+        </a>
+        <a href="attendance.html" class="nav-item">
+          <i class="fa-solid fa-calendar-check"></i> Mark Attendance
+        </a>
+
+        <div class="nav-section-title">Academic Records</div>
+        <a href="students.html" class="nav-item">
+          <i class="fa-solid fa-user-graduate"></i> Students
+        </a>
+        <a href="classes.html" class="nav-item">
+          <i class="fa-solid fa-chalkboard"></i> Classes
+        </a>
+        <a href="subjects.html" class="nav-item active">
+          <i class="fa-solid fa-book-open"></i> Subjects
+        </a>
+
+        <div class="nav-section-title">Analytics &amp; Tools</div>
+        <a href="reports.html" class="nav-item">
+          <i class="fa-solid fa-file-waveform"></i> Reports &amp; Export
+        </a>
+        <a href="settings.html" class="nav-item">
+          <i class="fa-solid fa-gear"></i> Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-snippet">
+          <div class="user-avatar" id="sidebar-user-avatar">T</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-user-name">Loading...</div>
+            <div class="user-role" id="sidebar-user-school">Educator</div>
+          </div>
+          <button id="btn-sidebar-logout" class="btn btn-secondary btn-icon" title="Logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="page-heading">
+            <h1 class="page-title">Subject Management</h1>
+            <span class="page-subtitle">Add and configure courses and subjects linked to your classes</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <button id="btn-open-add-subject" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i> Add New Subject
+          </button>
+        </div>
+      </header>
+
+      <main class="content-area">
+        <!-- Subjects Table / Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-book"></i> Active Subjects (<span id="subject-count-badge">0</span>)
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="table table-hover" id="subjects-table">
+              <thead>
+                <tr>
+                  <th>Subject Code</th>
+                  <th>Subject Name</th>
+                  <th>Associated Class</th>
+                  <th>Created Date</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="subjects-tbody">
+                <tr>
+                  <td colspan="5" class="text-center" style="padding: 40px;">
+                    <div class="spinner spinner-primary"></div>
+                    <div style="margin-top: 10px; color: var(--text-secondary);">Loading subjects from Firestore...</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal: Add / Edit Subject -->
+  <div class="modal-backdrop" id="subject-modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="subject-modal-title">Create New Subject</h2>
+        <button class="modal-close" id="btn-close-subject-modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="subject-form">
+        <div class="modal-body">
+          <input type="hidden" id="subject-doc-id">
+
+          <div class="form-group">
+            <label for="subject-name" class="form-label">Subject Name <span class="required">*</span></label>
+            <div class="input-icon-group">
+              <i class="fa-solid fa-book"></i>
+              <input type="text" id="subject-name" class="form-control" placeholder="e.g. Data Structures & Algorithms" required>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2" style="gap: 14px;">
+            <div class="form-group">
+              <label for="subject-code" class="form-label">Subject Code <span class="required">*</span></label>
+              <div class="input-icon-group">
+                <i class="fa-solid fa-barcode"></i>
+                <input type="text" id="subject-code" class="form-control" placeholder="e.g. CS-201" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="subject-class" class="form-label">Associated Class <span class="required">*</span></label>
+              <select id="subject-class" class="form-select" required>
+                <option value="">Select a Class...</option>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-subject">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-subject">
+            <span id="btn-save-subject-text">Save Subject</span>
+            <span id="btn-save-subject-spinner" class="spinner" style="display: none;"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal-backdrop" id="delete-subject-backdrop">
+    <div class="modal" style="max-width: 420px;">
+      <div class="modal-header">
+        <h2 class="modal-title text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Delete Subject</h2>
+        <button class="modal-close" id="btn-close-delete-subject">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete subject <strong id="delete-subject-name"></strong>?</p>
+        <p class="text-secondary" style="font-size: 0.85rem; margin-top: 8px;">
+          This subject will be removed from your catalog.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-cancel-delete-subject">Cancel</button>
+        <button type="button" class="btn btn-danger" id="btn-confirm-delete-subject">
+          <i class="fa-solid fa-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/subjects.js"></script>
+</body>
+</html>

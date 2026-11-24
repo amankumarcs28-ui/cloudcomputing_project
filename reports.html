@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Reports &amp; Export - CloudAttend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="toast-container"></div>
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">CloudAttend</span>
+          <span class="brand-subtitle">Teacher Portal</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Overview</div>
+        <a href="dashboard.html" class="nav-item">
+          <i class="fa-solid fa-chart-line"></i> Dashboard
+        </a>
+        <a href="attendance.html" class="nav-item">
+          <i class="fa-solid fa-calendar-check"></i> Mark Attendance
+        </a>
+
+        <div class="nav-section-title">Academic Records</div>
+        <a href="students.html" class="nav-item">
+          <i class="fa-solid fa-user-graduate"></i> Students
+        </a>
+        <a href="classes.html" class="nav-item">
+          <i class="fa-solid fa-chalkboard"></i> Classes
+        </a>
+        <a href="subjects.html" class="nav-item">
+          <i class="fa-solid fa-book-open"></i> Subjects
+        </a>
+
+        <div class="nav-section-title">Analytics &amp; Tools</div>
+        <a href="reports.html" class="nav-item active">
+          <i class="fa-solid fa-file-waveform"></i> Reports &amp; Export
+        </a>
+        <a href="settings.html" class="nav-item">
+          <i class="fa-solid fa-gear"></i> Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-snippet">
+          <div class="user-avatar" id="sidebar-user-avatar">T</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-user-name">Loading...</div>
+            <div class="user-role" id="sidebar-user-school">Educator</div>
+          </div>
+          <button id="btn-sidebar-logout" class="btn btn-secondary btn-icon" title="Logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="page-heading">
+            <h1 class="page-title">Attendance Reports &amp; Export</h1>
+            <span class="page-subtitle">Analyze attendance percentages and download detailed CSV spreadsheets</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <button id="btn-export-csv" class="btn btn-success" disabled>
+            <i class="fa-solid fa-file-csv"></i> Export Filtered CSV
+          </button>
+        </div>
+      </header>
+
+      <main class="content-area">
+        <!-- Filter Bar -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-body" style="padding: 20px;">
+            <form id="report-filter-form" style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;">
+              <!-- Class Filter -->
+              <div style="flex: 1; min-width: 180px;">
+                <label for="report-class" class="form-label">Class <span class="required">*</span></label>
+                <select id="report-class" class="form-select" required>
+                  <option value="">Select Class...</option>
+                </select>
+              </div>
+
+              <!-- Subject Filter (Optional) -->
+              <div style="flex: 1; min-width: 180px;">
+                <label for="report-subject" class="form-label">Subject</label>
+                <select id="report-subject" class="form-select">
+                  <option value="">All Subjects</option>
+                </select>
+              </div>
+
+              <!-- Start Date -->
+              <div style="flex: 1; min-width: 160px;">
+                <label for="report-start-date" class="form-label">From Date</label>
+                <input type="date" id="report-start-date" class="form-control">
+              </div>
+
+              <!-- End Date -->
+              <div style="flex: 1; min-width: 160px;">
+                <label for="report-end-date" class="form-label">To Date</label>
+                <input type="date" id="report-end-date" class="form-control">
+              </div>
+
+              <!-- Filter Action Button -->
+              <div>
+                <button type="submit" id="btn-generate-report" class="btn btn-primary" style="height: 42px;">
+                  <i class="fa-solid fa-filter"></i> Generate Report
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Summary Metric Cards (Hidden until generated) -->
+        <div id="report-summary-cards" class="grid grid-cols-4" style="margin-bottom: 24px; display: none;">
+          <div class="stat-card primary">
+            <div class="stat-content">
+              <span class="stat-label">Total Sessions Held</span>
+              <div class="stat-value" id="summary-total-sessions">0</div>
+              <span class="stat-subtext">In selected date range</span>
+            </div>
+            <div class="stat-icon primary"><i class="fa-solid fa-calendar-check"></i></div>
+          </div>
+
+          <div class="stat-card info">
+            <div class="stat-content">
+              <span class="stat-label">Students Tracked</span>
+              <div class="stat-value" id="summary-total-students">0</div>
+              <span class="stat-subtext">Active in class roster</span>
+            </div>
+            <div class="stat-icon info"><i class="fa-solid fa-user-graduate"></i></div>
+          </div>
+
+          <div class="stat-card success">
+            <div class="stat-content">
+              <span class="stat-label">Average Attendance %</span>
+              <div class="stat-value" id="summary-average-percentage">0%</div>
+              <span class="stat-subtext">Aggregate batch average</span>
+            </div>
+            <div class="stat-icon success"><i class="fa-solid fa-chart-pie"></i></div>
+          </div>
+
+          <div class="stat-card danger">
+            <div class="stat-content">
+              <span class="stat-label">Defaulters (&lt; 75%)</span>
+              <div class="stat-value text-danger" id="summary-low-count">0</div>
+              <span class="stat-subtext">Low attendance alert</span>
+            </div>
+            <div class="stat-icon danger"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          </div>
+        </div>
+
+        <!-- Report Data Table Card -->
+        <div class="card" id="report-results-card" style="display: none;">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-table-list"></i> Student-Wise Attendance Audit
+            </div>
+            <span class="text-secondary" style="font-size: 0.85rem;" id="report-period-label"></span>
+          </div>
+
+          <div class="table-container">
+            <table class="table table-hover" id="report-table">
+              <thead>
+                <tr>
+                  <th style="width: 100px;">Roll No</th>
+                  <th>Student Name</th>
+                  <th>Total Classes</th>
+                  <th style="color: var(--success);">Present Count</th>
+                  <th style="color: var(--danger);">Absent Count</th>
+                  <th style="width: 200px;">Attendance %</th>
+                  <th style="text-align: right;">Status</th>
+                </tr>
+              </thead>
+              <tbody id="report-tbody">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Empty state placeholder -->
+        <div id="report-placeholder" class="card">
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <i class="fa-solid fa-chart-simple"></i>
+            </div>
+            <h2 class="empty-state-title">Generate Attendance Report</h2>
+            <p class="empty-state-desc">
+              Choose a class and optional date range above to view comprehensive attendance percentages and download your CSV export.
+            </p>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="./js/reports.js"></script>
+</body>
+</html>

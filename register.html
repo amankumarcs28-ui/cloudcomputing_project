@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Registration - CloudAttend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-wrapper">
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <div class="auth-card" style="max-width: 480px;">
+    <div class="auth-header">
+      <div class="auth-brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div class="brand-text" style="text-align: left;">
+          <span class="brand-title">CloudAttend</span>
+          <span class="brand-subtitle">Teacher Portal</span>
+        </div>
+      </div>
+      <h1 class="auth-title">Create Teacher Account</h1>
+      <p class="auth-subtitle">Register to begin managing your classes &amp; students</p>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="auth-alert" style="display: none; padding: 12px 16px; border-radius: var(--radius-md); margin-bottom: 20px; font-size: 0.875rem;"></div>
+
+    <form id="register-form" novalidate>
+      <div class="form-group">
+        <label for="reg-name" class="form-label">Full Name <span class="required">*</span></label>
+        <div class="input-icon-group">
+          <i class="fa-regular fa-user"></i>
+          <input type="text" id="reg-name" class="form-control" placeholder="Dr. Sarah Connor" required autocomplete="name">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="reg-school" class="form-label">School / Institution Name</label>
+        <div class="input-icon-group">
+          <i class="fa-solid fa-school"></i>
+          <input type="text" id="reg-school" class="form-control" placeholder="Springfield High School / Apex University">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="reg-email" class="form-label">Email Address <span class="required">*</span></label>
+        <div class="input-icon-group">
+          <i class="fa-regular fa-envelope"></i>
+          <input type="email" id="reg-email" class="form-control" placeholder="sarah@school.edu" required autocomplete="email">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2" style="gap: 12px;">
+        <div class="form-group">
+          <label for="reg-password" class="form-label">Password <span class="required">*</span></label>
+          <div class="input-icon-group">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="reg-password" class="form-control" placeholder="Min 6 chars" required autocomplete="new-password">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-confirm-password" class="form-label">Confirm Password <span class="required">*</span></label>
+          <div class="input-icon-group">
+            <i class="fa-solid fa-shield-halved"></i>
+            <input type="password" id="reg-confirm-password" class="form-control" placeholder="Repeat password" required autocomplete="new-password">
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" id="btn-reg-submit" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;">
+        <span id="btn-reg-text"><i class="fa-solid fa-user-plus"></i> Create Teacher Account</span>
+        <span id="btn-reg-spinner" style="display: none;" class="spinner"></span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Already have a teacher account?
+      <a href="login.html" style="font-weight: 600;">Sign In here</a>
+    </div>
+
+    <div style="margin-top: 18px; text-align: center;">
+      <a href="index.html" class="text-secondary" style="font-size: 0.8rem;">
+        <i class="fa-solid fa-arrow-left"></i> Back to Homepage
+      </a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { registerTeacher, onAuthStateChange } from './js/auth.js';
+    import { showToast, showAlert } from './js/utils.js';
+
+    // Auto redirect if already signed in
+    onAuthStateChange((user) => {
+      if (user) {
+        window.location.replace('dashboard.html');
+      }
+    });
+
+    const form = document.getElementById('register-form');
+    const nameInput = document.getElementById('reg-name');
+    const schoolInput = document.getElementById('reg-school');
+    const emailInput = document.getElementById('reg-email');
+    const passwordInput = document.getElementById('reg-password');
+    const confirmPasswordInput = document.getElementById('reg-confirm-password');
+    const submitBtn = document.getElementById('btn-reg-submit');
+    const btnText = document.getElementById('btn-reg-text');
+    const btnSpinner = document.getElementById('btn-reg-spinner');
+    const alertBox = document.getElementById('auth-alert');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+
+      const name = nameInput.value.trim();
+      const school = schoolInput.value.trim() || 'General Institution';
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+
+      if (!name) {
+        showAlert(alertBox, 'Please enter your full name.', 'danger');
+        return;
+      }
+
+      if (!email) {
+        showAlert(alertBox, 'Please enter a valid email address.', 'danger');
+        return;
+      }
+
+      if (password.length < 6) {
+        showAlert(alertBox, 'Password must be at least 6 characters long.', 'danger');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showAlert(alertBox, 'Passwords do not match. Please re-enter them carefully.', 'danger');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      btnText.style.display = 'none';
+      btnSpinner.style.display = 'inline-block';
+
+      try {
+        await registerTeacher(email, password, { displayName: name, schoolName: school });
+        showToast('Account registered successfully! Redirecting to dashboard...', 'success');
+        setTimeout(() => {
+          window.location.replace('dashboard.html');
+        }, 800);
+      } catch (err) {
+        submitBtn.disabled = false;
+        btnText.style.display = 'inline-flex';
+        btnSpinner.style.display = 'none';
+
+        let userMsg = err.message || 'Registration failed. Please try again.';
+        if (err.code === 'auth/email-already-in-use') {
+          userMsg = 'This email is already registered. Please sign in instead.';
+        } else if (err.code === 'auth/weak-password') {
+          userMsg = 'Password is too weak. Please use a combination of letters and numbers.';
+        }
+        showAlert(alertBox, userMsg, 'danger');
+      }
+    });
+  </script>
+</body>
+</html>

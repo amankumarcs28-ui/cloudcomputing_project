@@ -1,0 +1,19 @@
+{
+  "name": "cloud-based-student-attendance-management-system",
+  "version": "1.0.0",
+  "description": "Cloud-Based Student Attendance Management System powered by Firebase Modular SDK",
+  "main": "index.html",
+  "scripts": {
+    "start": "powershell -ExecutionPolicy Bypass -File ./server.ps1",
+    "serve": "powershell -ExecutionPolicy Bypass -File ./server.ps1",
+    "dev": "powershell -ExecutionPolicy Bypass -File ./server.ps1"
+  },
+  "keywords": [
+    "attendance",
+    "firebase",
+    "student-management",
+    "education"
+  ],
+  "author": "Aman",
+  "license": "MIT"
+}

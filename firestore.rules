@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // =========================================================================
+    // Teacher-Isolated Security Architecture
+    // Data Structure: users/{teacherUid}/...
+    // Only the authenticated teacher can read and write to their own namespace.
+    // Cross-teacher data access is denied at the database rule level.
+    // =========================================================================
+
+    match /users/{teacherUid} {
+      // Teacher Profile document
+      allow read, write: if request.auth != null && request.auth.uid == teacherUid;
+
+      // Student Collection: users/{teacherUid}/students/{studentId}
+      match /students/{studentId} {
+        allow read, write: if request.auth != null && request.auth.uid == teacherUid;
+      }
+
+      // Class Collection: users/{teacherUid}/classes/{classId}
+      match /classes/{classId} {
+        allow read, write: if request.auth != null && request.auth.uid == teacherUid;
+      }
+
+      // Subject Collection: users/{teacherUid}/subjects/{subjectId}
+      match /subjects/{subjectId} {
+        allow read, write: if request.auth != null && request.auth.uid == teacherUid;
+      }
+
+      // Attendance Collection: users/{teacherUid}/attendance/{attendanceId}
+      match /attendance/{attendanceId} {
+        allow read, write: if request.auth != null && request.auth.uid == teacherUid;
+      }
+
+      // Any additional nested documents within the teacher's domain
+      match /{allChildren=**} {
+        allow read, write: if request.auth != null && request.auth.uid == teacherUid;
+      }
+    }
+
+    // Explicitly reject all other unauthorized access to root or arbitrary collections
+    match /{document=**} {
+      allow read, write: false;
+    }
+  }
+}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CloudAttend - Cloud-Based Student Attendance Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="landing-hero">
+  <!-- Navigation Header -->
+  <header class="landing-nav">
+    <div class="sidebar-brand" style="border-bottom: none; padding: 0;">
+      <div class="brand-icon">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">CloudAttend</span>
+        <span class="brand-subtitle">Smart Cloud Attendance</span>
+      </div>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <a href="login.html" class="btn btn-secondary">Sign In</a>
+      <a href="register.html" class="btn btn-primary">
+        <i class="fa-solid fa-user-plus"></i> Teacher Register
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero Body -->
+  <main class="landing-body">
+    <div class="hero-content">
+      <div class="hero-pill">
+        <i class="fa-solid fa-bolt"></i> Modern Firebase Cloud Architecture
+      </div>
+      <h1 class="hero-title">
+        Effortless Student Attendance &amp; <span>Cloud Analytics</span>
+      </h1>
+      <p class="hero-description">
+        A professional, fast, and multi-device attendance management system designed for educators. Manage students, track class attendance, detect absentees, and export comprehensive analytical reports in seconds.
+      </p>
+
+      <div class="hero-actions">
+        <a href="register.html" class="btn btn-primary btn-lg">
+          <i class="fa-solid fa-rocket"></i> Get Started as Teacher
+        </a>
+        <a href="login.html" class="btn btn-secondary btn-lg">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Login to Dashboard
+        </a>
+      </div>
+
+      <!-- Feature Grid Highlights -->
+      <div class="grid grid-cols-3" style="margin-top: 60px; text-align: left;">
+        <div class="card" style="padding: 24px;">
+          <div class="stat-icon primary" style="margin-bottom: 16px;">
+            <i class="fa-solid fa-calendar-check"></i>
+          </div>
+          <h3 style="font-size: 1.1rem; margin-bottom: 8px;">1-Click Attendance</h3>
+          <p class="text-secondary" style="font-size: 0.875rem;">
+            Quickly mark entire classes present or absent with batch updates, preventing duplicate records through deterministic cloud document IDs.
+          </p>
+        </div>
+
+        <div class="card" style="padding: 24px;">
+          <div class="stat-icon info" style="margin-bottom: 16px;">
+            <i class="fa-solid fa-chart-pie"></i>
+          </div>
+          <h3 style="font-size: 1.1rem; margin-bottom: 8px;">Real-Time Visual Analytics</h3>
+          <p class="text-secondary" style="font-size: 0.875rem;">
+            Dynamic Chart.js analytics calculating real-time attendance trends, class performance comparisons, and absentee ratios.
+          </p>
+        </div>
+
+        <div class="card" style="padding: 24px;">
+          <div class="stat-icon success" style="margin-bottom: 16px;">
+            <i class="fa-solid fa-file-csv"></i>
+          </div>
+          <h3 style="font-size: 1.1rem; margin-bottom: 8px;">Audit &amp; CSV Export</h3>
+          <p class="text-secondary" style="font-size: 0.875rem;">
+            Generate student-wise, class-wise, and subject-wise reports with percentage metrics and one-click export to CSV spreadsheets.
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer style="padding: 20px; text-align: center; border-top: 1px solid var(--border-color); font-size: 0.85rem; color: var(--text-muted);">
+    CloudAttend &copy; 2026 &bull; Cloud-Based Student Attendance Management System &bull; Powered by Firebase Modular SDK
+  </footer>
+
+  <!-- Check Auth State to auto-redirect if already logged in -->
+  <script type="module">
+    import { onAuthStateChange } from './js/auth.js';
+    onAuthStateChange((user) => {
+      if (user) {
+        window.location.replace('dashboard.html');
+      }
+    });
+  </script>
+</body>
+</html>

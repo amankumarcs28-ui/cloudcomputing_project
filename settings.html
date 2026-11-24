@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - CloudAttend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="toast-container"></div>
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">CloudAttend</span>
+          <span class="brand-subtitle">Teacher Portal</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Overview</div>
+        <a href="dashboard.html" class="nav-item">
+          <i class="fa-solid fa-chart-line"></i> Dashboard
+        </a>
+        <a href="attendance.html" class="nav-item">
+          <i class="fa-solid fa-calendar-check"></i> Mark Attendance
+        </a>
+
+        <div class="nav-section-title">Academic Records</div>
+        <a href="students.html" class="nav-item">
+          <i class="fa-solid fa-user-graduate"></i> Students
+        </a>
+        <a href="classes.html" class="nav-item">
+          <i class="fa-solid fa-chalkboard"></i> Classes
+        </a>
+        <a href="subjects.html" class="nav-item">
+          <i class="fa-solid fa-book-open"></i> Subjects
+        </a>
+
+        <div class="nav-section-title">Analytics &amp; Tools</div>
+        <a href="reports.html" class="nav-item">
+          <i class="fa-solid fa-file-waveform"></i> Reports &amp; Export
+        </a>
+        <a href="settings.html" class="nav-item active">
+          <i class="fa-solid fa-gear"></i> Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-snippet">
+          <div class="user-avatar" id="sidebar-user-avatar">T</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-user-name">Loading...</div>
+            <div class="user-role" id="sidebar-user-school">Educator</div>
+          </div>
+          <button id="btn-sidebar-logout" class="btn btn-secondary btn-icon" title="Logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="page-heading">
+            <h1 class="page-title">Account &amp; System Settings</h1>
+            <span class="page-subtitle">Manage your teacher profile and inspect Firebase Cloud connectivity</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="content-area">
+        <div class="grid grid-cols-12" style="gap: 24px;">
+          <!-- Left Column: Teacher Profile Card -->
+          <div class="col-span-7">
+            <div class="card" style="margin-bottom: 24px;">
+              <div class="card-header">
+                <div class="card-title">
+                  <i class="fa-solid fa-user-circle"></i> Educator Profile
+                </div>
+              </div>
+              <div class="card-body">
+                <form id="profile-form">
+                  <div class="form-group">
+                    <label for="profile-name" class="form-label">Full Name <span class="required">*</span></label>
+                    <div class="input-icon-group">
+                      <i class="fa-regular fa-user"></i>
+                      <input type="text" id="profile-name" class="form-control" required>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="profile-school" class="form-label">School / Institution</label>
+                    <div class="input-icon-group">
+                      <i class="fa-solid fa-school"></i>
+                      <input type="text" id="profile-school" class="form-control">
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="profile-email" class="form-label">Email Address</label>
+                    <div class="input-icon-group">
+                      <i class="fa-regular fa-envelope"></i>
+                      <input type="email" id="profile-email" class="form-control" readonly style="background-color: var(--bg-muted);">
+                    </div>
+                    <div class="form-text">Your email address is managed through Firebase Authentication</div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="profile-uid" class="form-label">Teacher Cloud UID</label>
+                    <input type="text" id="profile-uid" class="form-control" readonly style="background-color: var(--bg-muted); font-family: monospace; font-size: 0.8rem;">
+                    <div class="form-text">Firestore root namespace: <code>users/{teacherUid}/...</code></div>
+                  </div>
+
+                  <button type="submit" id="btn-save-profile" class="btn btn-primary" style="margin-top: 10px;">
+                    <span id="btn-save-profile-text"><i class="fa-solid fa-check"></i> Update Profile</span>
+                    <span id="btn-save-profile-spinner" class="spinner" style="display: none;"></span>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Cloud Connectivity Card & Architecture -->
+          <div class="col-span-5">
+            <!-- Cloud Connection Status Card -->
+            <div class="card" style="margin-bottom: 24px;">
+              <div class="card-header">
+                <div class="card-title">
+                  <i class="fa-solid fa-cloud"></i> Firebase Cloud Status
+                </div>
+              </div>
+              <div class="card-body">
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background-color: var(--bg-muted); border-radius: var(--radius-md);">
+                    <span style="font-size: 0.875rem; font-weight: 500;">Firebase SDK Version:</span>
+                    <span class="badge badge-primary">v10 Modular ESM</span>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background-color: var(--bg-muted); border-radius: var(--radius-md);">
+                    <span style="font-size: 0.875rem; font-weight: 500;">Firestore Namespace:</span>
+                    <span class="badge badge-success">Teacher Isolated</span>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background-color: var(--bg-muted); border-radius: var(--radius-md);">
+                    <span style="font-size: 0.875rem; font-weight: 500;">Configured Project:</span>
+                    <span id="settings-project-id" style="font-weight: 600; font-family: monospace; font-size: 0.825rem;">Checking...</span>
+                  </div>
+                </div>
+
+                <div style="margin-top: 20px; padding: 16px; background-color: var(--primary-light); border: 1px solid var(--primary-border); border-radius: var(--radius-md);">
+                  <div style="display: flex; align-items: center; gap: 8px; color: var(--primary); font-weight: 700; font-size: 0.9rem; margin-bottom: 6px;">
+                    <i class="fa-solid fa-shield-halved"></i> Security &amp; Isolation
+                  </div>
+                  <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5;">
+                    Your data is secured by Firebase Security Rules. Each teacher only has access to their own subcollections (students, classes, subjects, attendance). Cross-teacher access is denied at the database rule level.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Danger Zone: Sign Out -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title text-danger">
+                  <i class="fa-solid fa-arrow-right-from-bracket"></i> Session Management
+                </div>
+              </div>
+              <div class="card-body">
+                <p class="text-secondary" style="font-size: 0.85rem; margin-bottom: 16px;">
+                  End your current authenticated session on this browser.
+                </p>
+                <button type="button" id="btn-settings-logout" class="btn btn-outline-danger">
+                  <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out from Account
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './js/firebase-config.js';
+    import { requireAuth, logoutTeacher } from './js/auth.js';
+    import { doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { showToast } from './js/utils.js';
+
+    requireAuth(async (user) => {
+      // Populate sidebar
+      document.getElementById('sidebar-user-avatar').textContent = (user.displayName || user.email || 'T').charAt(0).toUpperCase();
+      document.getElementById('sidebar-user-name').textContent = user.displayName || 'Teacher';
+
+      // Settings Fields
+      document.getElementById('profile-name').value = user.displayName || '';
+      document.getElementById('profile-email').value = user.email || '';
+      document.getElementById('profile-uid').value = user.uid;
+
+      // Project ID
+      const projectId = auth.app.options.projectId;
+      document.getElementById('settings-project-id').textContent = projectId || 'Local / Config Pending';
+
+      // Fetch teacher doc
+      try {
+        const teacherSnap = await getDoc(doc(db, 'users', user.uid));
+        if (teacherSnap.exists()) {
+          const tData = teacherSnap.data();
+          if (tData.schoolName) {
+            document.getElementById('profile-school').value = tData.schoolName;
+            document.getElementById('sidebar-user-school').textContent = tData.schoolName;
+          }
+        }
+      } catch (err) {
+        console.warn('Could not fetch teacher profile details:', err);
+      }
+
+      // Profile Form submit
+      const form = document.getElementById('profile-form');
+      const saveBtn = document.getElementById('btn-save-profile');
+      const btnText = document.getElementById('btn-save-profile-text');
+      const btnSpinner = document.getElementById('btn-save-profile-spinner');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const newName = document.getElementById('profile-name').value.trim();
+        const newSchool = document.getElementById('profile-school').value.trim();
+
+        if (!newName) {
+          showToast('Please provide your name', 'warning');
+          return;
+        }
+
+        saveBtn.disabled = true;
+        btnText.style.display = 'none';
+        btnSpinner.style.display = 'inline-block';
+
+        try {
+          await updateDoc(doc(db, 'users', user.uid), {
+            displayName: newName,
+            schoolName: newSchool,
+            updatedAt: new Date().toISOString()
+          });
+
+          document.getElementById('sidebar-user-name').textContent = newName;
+          if (newSchool) {
+            document.getElementById('sidebar-user-school').textContent = newSchool;
+          }
+
+          showToast('Profile updated successfully!', 'success');
+        } catch (err) {
+          showToast('Failed to update profile: ' + err.message, 'error');
+        } finally {
+          saveBtn.disabled = false;
+          btnText.style.display = 'inline-flex';
+          btnSpinner.style.display = 'none';
+        }
+      });
+
+      // Logout buttons
+      const handleLogout = async () => {
+        try {
+          await logoutTeacher();
+          window.location.replace('login.html');
+        } catch (err) {
+          showToast('Error logging out: ' + err.message, 'error');
+        }
+      };
+
+      document.getElementById('btn-settings-logout').addEventListener('click', handleLogout);
+      document.getElementById('btn-sidebar-logout').addEventListener('click', handleLogout);
+
+      // Mobile menu toggle
+      const menuToggle = document.getElementById('menu-toggle');
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (menuToggle && sidebar && backdrop) {
+        menuToggle.addEventListener('click', () => {
+          sidebar.classList.toggle('open');
+          backdrop.classList.toggle('show');
+        });
+        backdrop.addEventListener('click', () => {
+          sidebar.classList.remove('open');
+          backdrop.classList.remove('show');
+        });
+      }
+    });
+  </script>
+</body>
+</html>

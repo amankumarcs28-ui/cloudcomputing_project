@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Students - CloudAttend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="toast-container"></div>
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">CloudAttend</span>
+          <span class="brand-subtitle">Teacher Portal</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Overview</div>
+        <a href="dashboard.html" class="nav-item">
+          <i class="fa-solid fa-chart-line"></i> Dashboard
+        </a>
+        <a href="attendance.html" class="nav-item">
+          <i class="fa-solid fa-calendar-check"></i> Mark Attendance
+        </a>
+
+        <div class="nav-section-title">Academic Records</div>
+        <a href="students.html" class="nav-item active">
+          <i class="fa-solid fa-user-graduate"></i> Students
+        </a>
+        <a href="classes.html" class="nav-item">
+          <i class="fa-solid fa-chalkboard"></i> Classes
+        </a>
+        <a href="subjects.html" class="nav-item">
+          <i class="fa-solid fa-book-open"></i> Subjects
+        </a>
+
+        <div class="nav-section-title">Analytics &amp; Tools</div>
+        <a href="reports.html" class="nav-item">
+          <i class="fa-solid fa-file-waveform"></i> Reports &amp; Export
+        </a>
+        <a href="settings.html" class="nav-item">
+          <i class="fa-solid fa-gear"></i> Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-snippet">
+          <div class="user-avatar" id="sidebar-user-avatar">T</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-user-name">Loading...</div>
+            <div class="user-role" id="sidebar-user-school">Educator</div>
+          </div>
+          <button id="btn-sidebar-logout" class="btn btn-secondary btn-icon" title="Logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menu-toggle">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="page-heading">
+            <h1 class="page-title">Student Directory</h1>
+            <span class="page-subtitle">Add, edit, search, and manage your students</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <button id="btn-open-add-student" class="btn btn-primary">
+            <i class="fa-solid fa-user-plus"></i> Add New Student
+          </button>
+        </div>
+      </header>
+
+      <main class="content-area">
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <div class="filter-group" style="flex: 1; min-width: 240px;">
+            <div class="input-icon-group" style="width: 100%; max-width: 380px;">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="search-students" class="form-control" placeholder="Search by name, roll no, or email...">
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-class" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Class Filter:</label>
+            <select id="filter-class" class="form-select" style="min-width: 180px;">
+              <option value="">All Classes</option>
+              <!-- Loaded dynamically from Firestore -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Students Table Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-users"></i> Registered Students (<span id="student-count-badge">0</span>)
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="table table-hover" id="students-table">
+              <thead>
+                <tr>
+                  <th>Roll No</th>
+                  <th>Student Name</th>
+                  <th>Class / Section</th>
+                  <th>Email</th>
+                  <th>Enrolled On</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="students-tbody">
+                <tr>
+                  <td colspan="6" class="text-center" style="padding: 40px;">
+                    <div class="spinner spinner-primary"></div>
+                    <div style="margin-top: 10px; color: var(--text-secondary);">Loading student records from Firestore...</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal: Add / Edit Student -->
+  <div class="modal-backdrop" id="student-modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="student-modal-title">Add New Student</h2>
+        <button class="modal-close" id="btn-close-student-modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="student-form">
+        <div class="modal-body">
+          <input type="hidden" id="student-doc-id">
+
+          <div class="form-group">
+            <label for="student-name" class="form-label">Full Name <span class="required">*</span></label>
+            <div class="input-icon-group">
+              <i class="fa-regular fa-user"></i>
+              <input type="text" id="student-name" class="form-control" placeholder="e.g. John Doe" required>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2" style="gap: 14px;">
+            <div class="form-group">
+              <label for="student-class" class="form-label">Class <span class="required">*</span></label>
+              <select id="student-class" class="form-select" required>
+                <option value="">Select a Class...</option>
+                <!-- Populated dynamically -->
+              </select>
+              <div class="form-text">Must create a class first</div>
+            </div>
+
+            <div class="form-group">
+              <label for="student-roll" class="form-label">Roll Number <span class="required">*</span></label>
+              <div class="input-icon-group">
+                <i class="fa-solid fa-id-badge"></i>
+                <input type="text" id="student-roll" class="form-control" placeholder="e.g. 101" required>
+              </div>
+              <div class="form-text">Unique per class</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="student-email" class="form-label">Email Address</label>
+            <div class="input-icon-group">
+              <i class="fa-regular fa-envelope"></i>
+              <input type="email" id="student-email" class="form-control" placeholder="john.doe@example.com">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-student">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-student">
+            <span id="btn-save-student-text">Save Student</span>
+            <span id="btn-save-student-spinner" class="spinner" style="display: none;"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Delete Confirmation -->
+  <div class="modal-backdrop" id="delete-modal-backdrop">
+    <div class="modal" style="max-width: 420px;">
+      <div class="modal-header">
+        <h2 class="modal-title text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Delete Student</h2>
+        <button class="modal-close" id="btn-close-delete-modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete student <strong id="delete-student-name"></strong>?</p>
+        <p class="text-secondary" style="font-size: 0.85rem; margin-top: 8px;">
+          This student will be removed from your active student roster.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-cancel-delete">Cancel</button>
+        <button type="button" class="btn btn-danger" id="btn-confirm-delete">
+          <i class="fa-solid fa-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/students.js"></script>
+</body>
+</html>
